@@ -14,7 +14,17 @@ public static class Startup
         services.AddSingleton<ISettings>(settings);
 
         services.AddDbContext(settings.DbConnectionType, settings.DbConnectionString);
-        
+
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
+            {
+                policy.AllowAnyHeader();
+                policy.AllowAnyMethod();
+                policy.AllowAnyOrigin();
+            });
+        });
+
         services.AddMediatR(config =>
             config.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
 
@@ -26,6 +36,8 @@ public static class Startup
     public static void ConfigureApplication(this WebApplication app)
     {
         app.UseCustomExceptionHandler<CustomExceptionHandlerMiddleware>();
+
+        app.UseCors("AllowAll");
         
         app.UseSwagger();
         app.UseSwaggerUI();
